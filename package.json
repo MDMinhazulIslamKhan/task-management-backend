@@ -4,7 +4,8 @@
   "description": "A simple Task Management Application using node, express, mongodb along with the Next.js framework.",
   "main": "src/server.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/server.js",
+    "build": "tsc",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts"
   },
   "author": "Md. Minhazul Islam Khan",
