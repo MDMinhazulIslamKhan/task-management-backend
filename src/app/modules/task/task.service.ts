@@ -214,6 +214,10 @@ const getAllMyTasks = async (
   filters: ITaskFilters,
   paginationOptions: IPaginationOptions,
 ): Promise<IGenericResponse<ITask[]>> => {
+  const creator = await User.findById(user.id);
+  if (!creator) {
+    throw new ApiError(httpStatus.CONFLICT, 'Your profile does not exist!!!');
+  }
   const { searchTerm, deadLine = '2050', ...filtersData } = filters;
 
   const andConditions = [];
@@ -311,6 +315,10 @@ const getAllMyTasks = async (
 const getMyAssignedTasks = async (
   user: UserInfoFromToken,
 ): Promise<ITask[]> => {
+  const creator = await User.findById(user.id);
+  if (!creator) {
+    throw new ApiError(httpStatus.CONFLICT, 'Your profile does not exist!!!');
+  }
   const result = await Task.find({
     'assigned.userId': user.id,
   })
@@ -361,7 +369,7 @@ const getMyAssignedTasks = async (
   return result;
 };
 
-const getSingleTasks = async (id: string): Promise<ITask | null> => {
+const getSingleTask = async (id: string): Promise<ITask | null> => {
   const result = await Task.findById(id)
     .populate({
       path: 'completedBy',
@@ -412,7 +420,7 @@ const getSingleTasks = async (id: string): Promise<ITask | null> => {
   return result;
 };
 
-const updateTasks = async (
+const updateTask = async (
   id: string,
   userInfo: UserInfoFromToken,
   payload: Partial<ITask>,
@@ -424,6 +432,11 @@ const updateTasks = async (
       httpStatus.BAD_REQUEST,
       'There is no task with this id!!!',
     );
+  }
+
+  const creator = await User.findById(userInfo.id);
+  if (!creator) {
+    throw new ApiError(httpStatus.CONFLICT, 'Your profile does not exist!!!');
   }
 
   if (userInfo.id.toString() !== task.creatorId.toString()) {
@@ -479,7 +492,7 @@ const updateTasks = async (
   return result;
 };
 
-const deleteTasks = async (
+const deleteTask = async (
   id: string,
   userInfo: UserInfoFromToken,
 ): Promise<ITask | null> => {
@@ -490,6 +503,11 @@ const deleteTasks = async (
       httpStatus.BAD_REQUEST,
       'There is no task with this id!!!',
     );
+  }
+
+  const creator = await User.findById(userInfo.id);
+  if (!creator) {
+    throw new ApiError(httpStatus.CONFLICT, 'Your profile does not exist!!!');
   }
 
   if (userInfo.id.toString() !== task.creatorId.toString()) {
@@ -524,12 +542,433 @@ const deleteTasks = async (
   return result;
 };
 
+const postFeedback = async (
+  id: string,
+  userInfo: UserInfoFromToken,
+  payload: { feedback: string },
+): Promise<ITask | null> => {
+  const task = await Task.findById(id);
+
+  if (!task) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'There is no task with this id!!!',
+    );
+  }
+
+  const checkFeedback = task.feedback.find(f => f.userId == userInfo.id);
+  if (checkFeedback) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'Your already post a feedback!!!',
+    );
+  }
+  const creator = await User.findById(userInfo.id);
+  if (!creator) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      'Your profile does not exist on database!!!',
+    );
+  }
+
+  const feedback = { userId: userInfo.id, ...payload };
+
+  const result = await Task.findOneAndUpdate(
+    { _id: id },
+    { $push: { feedback: feedback } },
+    {
+      new: true,
+    },
+  )
+    .populate({
+      path: 'completedBy',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+      },
+    })
+    .populate({
+      path: 'creatorId',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        createdTask: true,
+      },
+    })
+    .populate({
+      path: 'assigned',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+            email: true,
+            phoneNumber: true,
+            complectedTask: true,
+          },
+        },
+      ],
+    })
+    .populate({
+      path: 'feedback',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+          },
+        },
+      ],
+    });
+
+  return result;
+};
+
+const deleteFeedback = async (
+  id: string,
+  userInfo: UserInfoFromToken,
+): Promise<ITask | null> => {
+  const task = await Task.findById(id);
+
+  if (!task) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'There is no task with this id!!!',
+    );
+  }
+
+  const creator = await User.findById(userInfo.id);
+  if (!creator) {
+    throw new ApiError(
+      httpStatus.CONFLICT,
+      'Your profile does not exist on database!!!',
+    );
+  }
+
+  const result = await Task.findOneAndUpdate(
+    { _id: id },
+    { $pull: { feedback: { userId: userInfo.id } } },
+    {
+      new: true,
+    },
+  )
+    .populate({
+      path: 'completedBy',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+      },
+    })
+    .populate({
+      path: 'creatorId',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        createdTask: true,
+      },
+    })
+    .populate({
+      path: 'assigned',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+            email: true,
+            phoneNumber: true,
+            complectedTask: true,
+          },
+        },
+      ],
+    })
+    .populate({
+      path: 'feedback',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+          },
+        },
+      ],
+    });
+
+  return result;
+};
+
+const acceptTask = async (
+  id: string,
+  userInfo: UserInfoFromToken,
+): Promise<ITask | null> => {
+  const task = await Task.findById(id);
+
+  if (!task) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'There is no task with this id!!!',
+    );
+  }
+
+  const creator = await User.findById(userInfo.id);
+  if (!creator) {
+    throw new ApiError(httpStatus.CONFLICT, 'Your profile does not exist!!!');
+  }
+
+  if (userInfo.id.toString() !== task.assigned?.userId?.toString()) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      'This task has not been assigned to you!!!',
+    );
+  }
+  if (task?.assigned?.status != 'process') {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Already ${task?.assigned?.status}!!!`,
+    );
+  }
+
+  await User.findOneAndUpdate(
+    { _id: userInfo.id },
+    { $inc: { notification: -1 } },
+  );
+
+  const result = await Task.findOneAndUpdate(
+    { _id: id },
+    { $set: { 'assigned.status': 'accept' } },
+    {
+      new: true,
+    },
+  )
+    .populate({
+      path: 'completedBy',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+      },
+    })
+    .populate({
+      path: 'creatorId',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        createdTask: true,
+      },
+    })
+    .populate({
+      path: 'assigned',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+            email: true,
+            phoneNumber: true,
+            complectedTask: true,
+          },
+        },
+      ],
+    })
+    .populate({
+      path: 'feedback',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+          },
+        },
+      ],
+    });
+
+  return result;
+};
+
+const cancelTask = async (
+  id: string,
+  userInfo: UserInfoFromToken,
+): Promise<ITask | null> => {
+  const task = await Task.findById(id);
+
+  if (!task) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'There is no task with this id!!!',
+    );
+  }
+
+  const creator = await User.findById(userInfo.id);
+  if (!creator) {
+    throw new ApiError(httpStatus.CONFLICT, 'Your profile does not exist!!!');
+  }
+
+  if (userInfo.id.toString() !== task.assigned?.userId?.toString()) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      'This task has not been assigned to you!!!',
+    );
+  }
+  if (task?.assigned?.status != 'process') {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Already ${task?.assigned?.status}!!!`,
+    );
+  }
+  await User.findOneAndUpdate(
+    { _id: userInfo.id },
+    { $inc: { notification: -1 } },
+  );
+
+  const result = await Task.findOneAndUpdate(
+    { _id: id },
+    { $set: { 'assigned.status': 'cancel' } },
+    {
+      new: true,
+    },
+  )
+    .populate({
+      path: 'completedBy',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+      },
+    })
+    .populate({
+      path: 'creatorId',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        createdTask: true,
+      },
+    })
+    .populate({
+      path: 'assigned',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+            email: true,
+            phoneNumber: true,
+            complectedTask: true,
+          },
+        },
+      ],
+    })
+    .populate({
+      path: 'feedback',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+          },
+        },
+      ],
+    });
+
+  return result;
+};
+const completeTask = async (
+  id: string,
+  userInfo: UserInfoFromToken,
+): Promise<ITask | null> => {
+  const task = await Task.findById(id);
+
+  if (!task) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      'There is no task with this id!!!',
+    );
+  }
+
+  const creator = await User.findById(userInfo.id);
+  if (!creator) {
+    throw new ApiError(httpStatus.CONFLICT, 'Your profile does not exist!!!');
+  }
+  const a = task.completedBy.find(c => c == userInfo.id);
+  if (a) {
+    throw new ApiError(
+      httpStatus.BAD_REQUEST,
+      `Already completed this task!!!`,
+    );
+  }
+  await User.findOneAndUpdate(
+    { _id: userInfo.id },
+    { $inc: { complectedTask: 1 } },
+  );
+
+  const result = await Task.findOneAndUpdate(
+    { _id: id },
+    { $push: { completedBy: userInfo.id } },
+    {
+      new: true,
+    },
+  )
+    .populate({
+      path: 'completedBy',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+      },
+    })
+    .populate({
+      path: 'creatorId',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        createdTask: true,
+      },
+    })
+    .populate({
+      path: 'assigned',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+            email: true,
+            phoneNumber: true,
+            complectedTask: true,
+          },
+        },
+      ],
+    })
+    .populate({
+      path: 'feedback',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+          },
+        },
+      ],
+    });
+
+  return result;
+};
+
 export const TaskService = {
   createTask,
   getAllTasks,
   getAllMyTasks,
   getMyAssignedTasks,
-  getSingleTasks,
-  updateTasks,
-  deleteTasks,
+  getSingleTask,
+  updateTask,
+  deleteTask,
+  postFeedback,
+  deleteFeedback,
+  acceptTask,
+  cancelTask,
+  completeTask,
 };

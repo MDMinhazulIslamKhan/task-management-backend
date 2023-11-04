@@ -32,7 +32,18 @@ const updateTaskZodSchema = z.object({
     .strict(),
 });
 
+const postFeedbackSchema = z.object({
+  body: z
+    .object({
+      feedback: z.string({
+        required_error: 'Feedback is required',
+      }),
+    })
+    .strict(),
+});
+
 export const TaskValidation = {
   createTaskZodSchema,
   updateTaskZodSchema,
+  postFeedbackSchema,
 };

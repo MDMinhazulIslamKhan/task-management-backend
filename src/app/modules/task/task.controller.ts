@@ -69,10 +69,10 @@ const getMyAssignedTasks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getSingleTasks = catchAsync(async (req: Request, res: Response) => {
+const getSingleTask = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await TaskService.getSingleTasks(id);
+  const result = await TaskService.getSingleTask(id);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -82,10 +82,10 @@ const getSingleTasks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const updateTasks = catchAsync(async (req: Request, res: Response) => {
+const updateTask = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await TaskService.updateTasks(
+  const result = await TaskService.updateTask(
     id,
     req.user as UserInfoFromToken,
     req.body,
@@ -99,10 +99,10 @@ const updateTasks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const deleteTasks = catchAsync(async (req: Request, res: Response) => {
+const deleteTask = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id;
 
-  const result = await TaskService.deleteTasks(
+  const result = await TaskService.deleteTask(
     id,
     req.user as UserInfoFromToken,
   );
@@ -115,12 +115,95 @@ const deleteTasks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const postFeedback = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TaskService.postFeedback(
+    id,
+    req.user as UserInfoFromToken,
+    req.body,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Feedback Post Successfully.',
+    data: result,
+  });
+});
+
+const deleteFeedback = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TaskService.deleteFeedback(
+    id,
+    req.user as UserInfoFromToken,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Feedback Deleted Successfully.',
+    data: result,
+  });
+});
+const acceptTask = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TaskService.acceptTask(
+    id,
+    req.user as UserInfoFromToken,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Task Accepted Successfully.',
+    data: result,
+  });
+});
+const cancelTask = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TaskService.cancelTask(
+    id,
+    req.user as UserInfoFromToken,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Task Canceled Successfully.',
+    data: result,
+  });
+});
+const completeTask = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TaskService.completeTask(
+    id,
+    req.user as UserInfoFromToken,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Task Completed Successfully.',
+    data: result,
+  });
+});
+
 export const TaskController = {
   createTask,
   getAllTasks,
   getAllMyTasks,
   getMyAssignedTasks,
-  getSingleTasks,
-  updateTasks,
-  deleteTasks,
+  getSingleTask,
+  updateTask,
+  deleteTask,
+  postFeedback,
+  deleteFeedback,
+  acceptTask,
+  cancelTask,
+  completeTask,
 };
