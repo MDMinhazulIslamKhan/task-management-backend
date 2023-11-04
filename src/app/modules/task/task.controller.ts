@@ -4,6 +4,9 @@ import catchAsync from '../../../shared/catchAsync';
 import sendResponse from '../../../shared/sendResponse';
 import httpStatus from 'http-status';
 import { UserInfoFromToken } from '../../../interfaces/common';
+import pick from '../../../shared/pick';
+import { taskFilterableField } from './task.constant';
+import { paginationFields } from '../../../constant';
 
 const createTask: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
@@ -21,6 +24,22 @@ const createTask: RequestHandler = catchAsync(
   },
 );
 
+const getAllTasks = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, taskFilterableField);
+  const paginationOptions = pick(req.query, paginationFields);
+
+  const result = await TaskService.getAllTasks(filters, paginationOptions);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Task retrieved Successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 export const TaskController = {
   createTask,
+  getAllTasks,
 };

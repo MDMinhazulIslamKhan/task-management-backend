@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { taskTypes } from './task.constant';
 
 const createTaskZodSchema = z.object({
   body: z
@@ -10,6 +11,9 @@ const createTaskZodSchema = z.object({
         required_error: 'Description is required',
       }),
       assigned: z.string().optional(),
+      category: z.enum([...taskTypes] as [string, ...string[]], {
+        required_error: 'Category is required',
+      }),
       deadLine: z.string({
         required_error: 'Deadline is required',
       }),

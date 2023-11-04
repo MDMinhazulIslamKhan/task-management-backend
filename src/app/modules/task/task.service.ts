@@ -1,10 +1,16 @@
-import { ITask } from './task.interface';
+import { ITask, ITaskFilters } from './task.interface';
 import Task from './task.model';
-import { UserInfoFromToken } from '../../../interfaces/common';
-import mongoose, { Types } from 'mongoose';
+import {
+  IGenericResponse,
+  IPaginationOptions,
+  UserInfoFromToken,
+} from '../../../interfaces/common';
+import mongoose, { SortOrder, Types } from 'mongoose';
 import User from '../user/user.model';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
+import { taskFilterableField } from './task.constant';
+import { calculatePagination } from '../../../helpers/paginationHelper';
 
 const createTask = async (
   task: Partial<ITask>,
@@ -90,6 +96,109 @@ const createTask = async (
   return results;
 };
 
+const getAllTasks = async (
+  filters: ITaskFilters,
+  paginationOptions: IPaginationOptions,
+): Promise<IGenericResponse<ITask[]>> => {
+  const { searchTerm, deadLine = '2050', ...filtersData } = filters;
+
+  const andConditions = [];
+
+  // for filter deadLine
+  andConditions.push({
+    $and: [{ deadLine: { $lte: deadLine } }],
+  });
+
+  // for filter data
+  if (searchTerm) {
+    andConditions.push({
+      $or: taskFilterableField.map(field => ({
+        [field]: { $regex: searchTerm, $options: 'i' },
+      })),
+    });
+  }
+
+  // for exact match user and condition
+  if (Object.keys(filtersData).length) {
+    andConditions.push({
+      $and: Object.entries(filtersData).map(([field, value]) => ({
+        [field]: value,
+      })),
+    });
+  }
+
+  const { page, limit, skip, sortBy, sortOrder } =
+    calculatePagination(paginationOptions);
+
+  const sortConditions: { [key: string]: SortOrder } = {};
+
+  if (sortBy && sortOrder) {
+    sortConditions[sortBy] = sortOrder;
+  }
+
+  // if no condition is given
+  const query = andConditions.length > 0 ? { $and: andConditions } : {};
+
+  const result = await Task.find(query)
+    .sort(sortConditions)
+    .skip(skip)
+    .limit(limit)
+    .populate({
+      path: 'completedBy',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+      },
+    })
+    .populate({
+      path: 'creatorId',
+      select: {
+        fullName: true,
+        email: true,
+        phoneNumber: true,
+        createdTask: true,
+      },
+    })
+    .populate({
+      path: 'assigned',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+            email: true,
+            phoneNumber: true,
+            complectedTask: true,
+          },
+        },
+      ],
+    })
+    .populate({
+      path: 'feedback',
+      populate: [
+        {
+          path: 'userId',
+          select: {
+            fullName: true,
+          },
+        },
+      ],
+    });
+
+  const count = await Task.countDocuments(query);
+
+  return {
+    meta: {
+      page,
+      limit,
+      count,
+    },
+    data: result,
+  };
+};
+
 export const TaskService = {
   createTask,
+  getAllTasks,
 };

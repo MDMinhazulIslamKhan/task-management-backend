@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 import { ITask, TaskModel } from './task.interface';
-import { assignedStatus } from './task.constant';
+import { assignedStatus, taskTypes } from './task.constant';
 
 const taskSchema = new Schema<ITask>(
   {
@@ -15,6 +15,11 @@ const taskSchema = new Schema<ITask>(
     },
     description: {
       type: String,
+      required: true,
+    },
+    category: {
+      type: String,
+      enum: taskTypes,
       required: true,
     },
     completedBy: {
