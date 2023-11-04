@@ -25,4 +25,15 @@ router.patch(
   UserController.changePassword,
 );
 
+router.get('/profile', auth(), UserController.getOwnProfile);
+
+router.patch(
+  '/profile',
+  auth(),
+  validateRequest(UserValidation.updateUserZodSchema),
+  UserController.updateOwnProfile,
+);
+
+router.get('/get-all-users', auth(), UserController.getAllUsers);
+
 export const UserRouters = router;

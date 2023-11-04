@@ -73,8 +73,56 @@ const changePassword = async (
   isUserExist.save();
 };
 
+const getOwnProfile = async (
+  userInfo: UserInfoFromToken,
+): Promise<IUser | null> => {
+  const result = await User.findById(userInfo.id);
+  if (!result) {
+    throw new ApiError(httpStatus.CONFLICT, 'Your profile is not exist!!!');
+  }
+  return result;
+};
+
+const updateOwnProfile = async (
+  payload: Partial<IUser>,
+  userInfo: UserInfoFromToken,
+): Promise<IUser | null> => {
+  const isUserExist = await User.findById(userInfo.id);
+
+  if (!isUserExist) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User does not exist');
+  }
+
+  if (payload.phoneNumber) {
+    const checkNumber = await User.findOne({
+      phoneNumber: payload.phoneNumber,
+    });
+
+    if (checkNumber) {
+      throw new ApiError(httpStatus.CONFLICT, 'Already used this number!!!');
+    }
+  }
+
+  const result = await User.findOneAndUpdate({ _id: userInfo.id }, payload, {
+    new: true,
+  });
+  return result;
+};
+
+const getAllUsers = async (): Promise<IUser[]> => {
+  const result = await User.find().select({
+    fullName: true,
+    phoneNumber: true,
+  });
+
+  return result;
+};
+
 export const UserService = {
   createUser,
   loginUser,
   changePassword,
+  getOwnProfile,
+  updateOwnProfile,
+  getAllUsers,
 };

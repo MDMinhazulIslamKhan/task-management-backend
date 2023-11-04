@@ -41,8 +41,51 @@ const changePassword = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getOwnProfile = catchAsync(async (req: Request, res: Response) => {
+  const userInfo = req?.user;
+
+  const result = await UserService.getOwnProfile(userInfo as UserInfoFromToken);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Profile retrieved successfully!',
+    data: result,
+  });
+});
+
+const updateOwnProfile = catchAsync(async (req: Request, res: Response) => {
+  const userInfo = req?.user;
+
+  const result = await UserService.updateOwnProfile(
+    req.body,
+    userInfo as UserInfoFromToken,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Profile updated successfully!',
+    data: result,
+  });
+});
+
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await UserService.getAllUsers();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'All users retrieved Successfully!',
+    data: result,
+  });
+});
+
 export const UserController = {
   createUser,
   loginUser,
   changePassword,
+  getOwnProfile,
+  updateOwnProfile,
+  getAllUsers,
 };
