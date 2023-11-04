@@ -21,6 +21,18 @@ const createTaskZodSchema = z.object({
     .strict(),
 });
 
+const updateTaskZodSchema = z.object({
+  body: z
+    .object({
+      name: z.string().optional(),
+      description: z.string().optional(),
+      category: z.enum([...taskTypes] as [string, ...string[]]).optional(),
+      deadLine: z.string().optional(),
+    })
+    .strict(),
+});
+
 export const TaskValidation = {
   createTaskZodSchema,
+  updateTaskZodSchema,
 };

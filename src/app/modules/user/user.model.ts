@@ -36,6 +36,11 @@ const userSchema = new Schema<IUser>(
       required: true,
       default: 0,
     },
+    notification: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
     complectedTask: {
       type: Number,
       required: true,

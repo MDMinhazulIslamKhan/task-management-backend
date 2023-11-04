@@ -39,7 +39,88 @@ const getAllTasks = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllMyTasks = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, taskFilterableField);
+  const paginationOptions = pick(req.query, paginationFields);
+
+  const result = await TaskService.getAllMyTasks(
+    req.user as UserInfoFromToken,
+    filters,
+    paginationOptions,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Your created task retrieved Successfully',
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+const getMyAssignedTasks = catchAsync(async (req: Request, res: Response) => {
+  const result = await TaskService.getMyAssignedTasks(
+    req.user as UserInfoFromToken,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Your task retrieved Successfully',
+    data: result,
+  });
+});
+
+const getSingleTasks = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TaskService.getSingleTasks(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Task retrieved Successfully.',
+    data: result,
+  });
+});
+
+const updateTasks = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TaskService.updateTasks(
+    id,
+    req.user as UserInfoFromToken,
+    req.body,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Task Updated Successfully.',
+    data: result,
+  });
+});
+
+const deleteTasks = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TaskService.deleteTasks(
+    id,
+    req.user as UserInfoFromToken,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Task Deleted Successfully.',
+    data: result,
+  });
+});
+
 export const TaskController = {
   createTask,
   getAllTasks,
+  getAllMyTasks,
+  getMyAssignedTasks,
+  getSingleTasks,
+  updateTasks,
+  deleteTasks,
 };

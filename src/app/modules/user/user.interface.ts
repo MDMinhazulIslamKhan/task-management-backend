@@ -8,6 +8,7 @@ export type IUser = {
   phoneNumber: string;
   password: string;
   role: Role;
+  notification: number;
   createdTask: number;
   complectedTask: number;
 };
