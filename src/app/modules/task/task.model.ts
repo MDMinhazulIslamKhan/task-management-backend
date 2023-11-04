@@ -21,21 +21,16 @@ const taskSchema = new Schema<ITask>(
       type: [Schema.Types.ObjectId],
       ref: 'User',
     },
-    assigned: [
-      {
-        userId: {
-          type: Schema.Types.ObjectId,
-          ref: 'User',
-          required: true,
-        },
-        status: {
-          type: String,
-          required: true,
-          enum: assignedStatus,
-          default: 'process',
-        },
+    assigned: {
+      userId: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
       },
-    ],
+      status: {
+        type: String,
+        enum: assignedStatus,
+      },
+    },
     deadLine: {
       type: Date,
       required: true,
