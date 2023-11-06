@@ -13,3 +13,9 @@ export const taskFilterableField = [
   'category',
   'deadLine',
 ];
+export const taskSearchableField = [
+  'searchTerm',
+  'description',
+  'name',
+  'category',
+];

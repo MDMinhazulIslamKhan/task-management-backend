@@ -9,7 +9,7 @@ import mongoose, { SortOrder, Types } from 'mongoose';
 import User from '../user/user.model';
 import ApiError from '../../../errors/ApiError';
 import httpStatus from 'http-status';
-import { taskFilterableField } from './task.constant';
+import { taskSearchableField } from './task.constant';
 import { calculatePagination } from '../../../helpers/paginationHelper';
 
 const createTask = async (
@@ -123,7 +123,7 @@ const getAllTasks = async (
   // for filter data
   if (searchTerm) {
     andConditions.push({
-      $or: taskFilterableField.map(field => ({
+      $or: taskSearchableField.map(field => ({
         [field]: { $regex: searchTerm, $options: 'i' },
       })),
     });
@@ -234,7 +234,7 @@ const getAllMyTasks = async (
   // for filter data
   if (searchTerm) {
     andConditions.push({
-      $or: taskFilterableField.map(field => ({
+      $or: taskSearchableField.map(field => ({
         [field]: { $regex: searchTerm, $options: 'i' },
       })),
     });
@@ -320,7 +320,7 @@ const getMyAssignedTasks = async (
     throw new ApiError(httpStatus.CONFLICT, 'Your profile does not exist!!!');
   }
   const result = await Task.find({
-    'assigned.userId': user.id,
+    $and: [{ 'assigned.userId': user.id }, { 'assigned.status': 'process' }],
   })
     .populate({
       path: 'completedBy',
