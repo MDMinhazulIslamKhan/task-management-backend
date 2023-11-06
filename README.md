@@ -4,7 +4,7 @@
 
 ### **Frontend Github: https://github.com/MDMinhazulIslamKhan/task-management-frontend**
 
-### **Backend Deploy Link: https://tutor-booking-and-management-mdminhazulislamkhan.vercel.app**
+### **Backend Deploy Link: https://task-managemnt-backend-mdminhazulislamkhan.vercel.app**
 
 ---
 
