@@ -10,9 +10,9 @@
 
 ---
 
-### **Requerment analysis - [_click here_](https://docs.google.com/document/d/19VdmRYnKdyV4vzuzAb0x4BTecCNzcznHKVlfpNs8PCQ/edit?usp=drive_link)**
+### **Requirement analysis - [_click here_](https://docs.google.com/document/d/19VdmRYnKdyV4vzuzAb0x4BTecCNzcznHKVlfpNs8PCQ/edit?usp=drive_link)**
 
-### **ER Diagram - [_click here_](https://docs.google.com/document/d/19VdmRYnKdyV4vzuzAb0x4BTecCNzcznHKVlfpNs8PCQ/edit?usp=sharing)**
+### **ER Diagram - [_click here_](https://drive.google.com/file/d/1mFArNTr43_NQCOVOJR7U4WVW_x5eCJTj/view?usp=sharing)**
 
 ---
 
@@ -62,7 +62,6 @@
 - /user/profile (get) ⇒ (for getting own profile information)
 - /user/profile (patch) ⇒ (for updating own profile)
 - /user/get-all-users (get)
-- /user/single-user/:id (get) ⇒ (for getting single user profile information)
 
 #### Task
 
@@ -72,8 +71,8 @@
 - /task/:id (get) ⇒ (for getting single task)
 - /task/:id (patch) ⇒ (for updating own created task)
 - /task/:id (delete) ⇒ (for deleting own created task)
-- /task/feedback/:id (post)
-- /task/feedback/:id (delete)
+- /task/feedback/:id (post) ⇒ (for giving feedback on task)
+- /task/feedback/:id (delete) ⇒ (for deleting own feedback)
 - /task/get-my-task (get) ⇒ (for getting my assigned task)
 - /task/accept-assigned-task/:id (patch)
 - /task/cancel-assigned-task/:id (patch)
