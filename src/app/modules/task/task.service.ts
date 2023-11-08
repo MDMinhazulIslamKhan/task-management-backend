@@ -522,7 +522,7 @@ const deleteTask = async (
     if (task?.assigned?.status == 'process') {
       await User.findOneAndUpdate(
         { _id: task?.assigned?.userId },
-        { $inc: { notification: 1 } },
+        { $inc: { notification: -1 } },
         {
           session,
         },

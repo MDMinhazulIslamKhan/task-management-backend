@@ -12,6 +12,8 @@
 
 ### **Requerment analysis - [_click here_](https://docs.google.com/document/d/19VdmRYnKdyV4vzuzAb0x4BTecCNzcznHKVlfpNs8PCQ/edit?usp=drive_link)**
 
+### **ER Diagram - [_click here_](https://docs.google.com/document/d/19VdmRYnKdyV4vzuzAb0x4BTecCNzcznHKVlfpNs8PCQ/edit?usp=sharing)**
+
 ---
 
 ## Used Technology
@@ -27,6 +29,7 @@
 - Http-status
 - Ts-node-dev
 - ESLint
+- Prettier
 - Lint-staged
 - Husky
 
@@ -34,10 +37,13 @@
 
 - Registration and login
 - Edit profile
+- Change password
 - View profile
 - Create task
 - Assign task
-- View task
+- Notification
+- See all task with pagination and filtering
+- View task details
 - Update task ( only for task creator )
 - Delete task ( only for task creator )
 - Accept assigned task
@@ -45,7 +51,6 @@
 - Complete task
 - Give feedback on task
 - Delete own feedback on task
-- Finished task
 
 ## API Endpoints
 

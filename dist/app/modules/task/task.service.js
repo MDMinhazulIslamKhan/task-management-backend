@@ -457,7 +457,7 @@ const deleteTask = (id, userInfo) => __awaiter(void 0, void 0, void 0, function*
     try {
         session.startTransaction();
         if (((_c = task === null || task === void 0 ? void 0 : task.assigned) === null || _c === void 0 ? void 0 : _c.status) == 'process') {
-            yield user_model_1.default.findOneAndUpdate({ _id: (_d = task === null || task === void 0 ? void 0 : task.assigned) === null || _d === void 0 ? void 0 : _d.userId }, { $inc: { notification: 1 } }, {
+            yield user_model_1.default.findOneAndUpdate({ _id: (_d = task === null || task === void 0 ? void 0 : task.assigned) === null || _d === void 0 ? void 0 : _d.userId }, { $inc: { notification: -1 } }, {
                 session,
             });
         }
